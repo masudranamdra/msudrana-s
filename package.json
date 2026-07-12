@@ -4,8 +4,9 @@
   "description": "Production-ready backend API for Portfolio SaaS Platform",
   "main": "dist/server.js",
   "scripts": {
+    "prebuild": "npm ci --ignore-scripts && npm rebuild",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
+    "build": "npx tsc",
     "start": "node dist/server.js"
   },
   "dependencies": {

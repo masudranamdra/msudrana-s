@@ -1,0 +1,11 @@
+node_modules
+.git
+.gitignore
+README.md
+.env.local
+.env.example
+dist
+*.log
+.DS_Store
+public/uploads
+temp
