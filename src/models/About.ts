@@ -13,6 +13,13 @@ export interface ILifestyleImage {
   publicId?: string;
 }
 
+export interface ISocialLink {
+  platform: string; // linkedin, github, twitter, portfolio, email, etc.
+  url: string;
+  icon?: string;
+  label?: string;
+}
+
 export interface IAbout extends Document {
   name: string;
   title: string;
@@ -32,6 +39,9 @@ export interface IAbout extends Document {
   currentFocus?: string[];
   email?: string;
   location?: string;
+
+  // Social Links & Contact
+  socialLinks?: ISocialLink[];
 
   // Lifestyle & Daily Life Additions
   lifestyleText: string;
@@ -56,6 +66,13 @@ const StatSchema = new Schema<IStat>({
 const LifestyleImageSchema = new Schema<ILifestyleImage>({
   url: { type: String, required: true },
   publicId: { type: String }
+});
+
+const SocialLinkSchema = new Schema<ISocialLink>({
+  platform: { type: String, required: true },
+  url: { type: String, required: true },
+  icon: { type: String },
+  label: { type: String }
 });
 
 const AboutSchema = new Schema<IAbout>(
@@ -117,6 +134,10 @@ const AboutSchema = new Schema<IAbout>(
     location: {
       type: String,
       default: '',
+    },
+    socialLinks: {
+      type: [SocialLinkSchema],
+      default: [],
     },
     stats: {
       type: [StatSchema],

@@ -35,28 +35,42 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const SkillSchema = new mongoose_1.Schema({
-    name: {
+    title: {
         type: String,
-        required: [true, 'Skill name is required'],
+        required: [true, 'Skill category title is required'],
         unique: true,
         trim: true,
     },
-    category: {
+    description: {
         type: String,
-        required: [true, 'Skill category is required'],
+        required: [true, 'Description is required'],
         trim: true,
-    },
-    level: {
-        type: Number,
-        required: [true, 'Skill level is required'],
-        min: [0, 'Level must be at least 0'],
-        max: [100, 'Level cannot exceed 100'],
     },
     icon: {
         type: String,
-        required: [true, 'Skill icon name is required'],
+        required: [true, 'Main icon identifier is required'],
         trim: true,
     },
+    colorTheme: {
+        type: String,
+        required: [true, 'Color theme is required'],
+        default: 'blue',
+        trim: true,
+    },
+    coreCompetencies: [
+        {
+            name: { type: String, required: true },
+            icon: { type: String, required: true },
+        },
+    ],
+    tools: [
+        {
+            name: { type: String, required: true },
+            icon: { type: String, required: true },
+            level: { type: Number, required: true, min: 0, max: 100 },
+            color: { type: String, required: true }, // e.g. 'text-cyan-500'
+        },
+    ],
     order: {
         type: Number,
         default: 0,

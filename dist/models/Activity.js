@@ -35,42 +35,45 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const ActivitySchema = new mongoose_1.Schema({
-    title: {
-        type: String,
-        required: [true, 'Activity title is required'],
-        trim: true,
-    },
-    description: {
-        type: String,
-        required: [true, 'Activity description is required'],
-    },
-    date: {
-        type: String,
-        required: [true, 'Activity date range is required'],
-        trim: true,
-    },
+    title: { type: String, required: [true, 'Activity title is required'], trim: true },
+    description: { type: String, required: [true, 'Activity description is required'] },
+    date: { type: String, required: [true, 'Activity date range is required'], trim: true },
+    duration: { type: String, trim: true },
     category: {
         type: String,
-        enum: ['Work', 'Education', 'Award', 'Project', 'Other'],
+        enum: ['Work', 'Education', 'Course', 'Award', 'Project', 'Other'],
         default: 'Work',
     },
-    icon: {
-        type: String,
-        required: [true, 'Icon name is required'],
-        default: 'Briefcase',
-    },
+    icon: { type: String, required: [true, 'Icon name is required'], default: 'Briefcase' },
     image: {
-        url: {
-            type: String,
-            default: '',
-        },
-        publicId: {
-            type: String,
-        },
+        url: { type: String, default: '' },
+        publicId: { type: String },
     },
-    order: {
-        type: Number,
-        default: 0,
-    },
+    fullDetails: { type: String },
+    order: { type: Number, default: 0 },
+    // Generic flags
+    isFeatured: { type: Boolean, default: false },
+    isPublished: { type: Boolean, default: true },
+    isCurrent: { type: Boolean, default: false },
+    // Work specific
+    companyName: { type: String },
+    employmentType: { type: String },
+    location: { type: String },
+    responsibilities: [{ type: String }],
+    technologies: [{ type: String }],
+    companyWebsite: { type: String },
+    // Education specific
+    degree: { type: String },
+    department: { type: String },
+    instituteName: { type: String },
+    session: { type: String },
+    cgpa: { type: String },
+    academicAchievements: [{ type: String }],
+    // Course specific
+    platform: { type: String },
+    instructor: { type: String },
+    completionDate: { type: String },
+    skillsLearned: [{ type: String }],
+    credentialLink: { type: String },
 }, { timestamps: true });
 exports.default = mongoose_1.default.models.Activity || mongoose_1.default.model('Activity', ActivitySchema);

@@ -24,6 +24,7 @@ const galleryRoutes_1 = __importDefault(require("./routes/galleryRoutes"));
 const documentRoutes_1 = __importDefault(require("./routes/documentRoutes"));
 const messageRoutes_1 = __importDefault(require("./routes/messageRoutes"));
 const configRoutes_1 = __importDefault(require("./routes/configRoutes"));
+const aboutRoutes_1 = __importDefault(require("./routes/aboutRoutes"));
 const app = (0, express_1.default)();
 // Set security headers
 app.use((0, helmet_1.default)({
@@ -51,10 +52,10 @@ app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 // Cookie parser
 app.use((0, cookie_parser_1.default)());
-// Rate Limiting (100 requests per 15 mins per IP for API)
+// Rate Limiting (100 requests per 15 mins per IP for API, increased in development)
 const apiLimiter = (0, express_rate_limit_1.default)({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: process.env.NODE_ENV === 'development' ? 10000 : 100,
     message: {
         success: false,
         message: 'Too many requests from this IP, please try again after 15 minutes',
@@ -82,6 +83,7 @@ app.use('/api/gallery', galleryRoutes_1.default);
 app.use('/api/documents', documentRoutes_1.default);
 app.use('/api/messages', messageRoutes_1.default);
 app.use('/api/config', configRoutes_1.default);
+app.use('/api/about', aboutRoutes_1.default);
 // Health Check Endpoint
 app.get('/health', (req, res) => {
     res.status(200).json({ success: true, message: 'Server is healthy' });

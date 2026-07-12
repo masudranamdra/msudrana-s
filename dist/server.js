@@ -3,11 +3,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const app_1 = __importDefault(require("./app"));
-const db_1 = require("./config/db");
 const dotenv_1 = __importDefault(require("dotenv"));
+const dns_1 = __importDefault(require("dns"));
 // Load env variables
 dotenv_1.default.config();
+// Fix DNS resolution issues on Windows for MongoDB Atlas SRV records
+dns_1.default.setServers(['8.8.8.8', '1.1.1.1']);
+const app_1 = __importDefault(require("./app"));
+const db_1 = require("./config/db");
 // Connect to Database
 (0, db_1.connectDB)();
 const PORT = process.env.PORT || 5000;

@@ -12,25 +12,28 @@ const crypto_1 = __importDefault(require("crypto"));
 const register = async (req, res, next) => {
     try {
         const { username, email, password } = req.body;
+        // Check if email is authorized
+        const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
+        const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
+        if (!adminEmails.includes(email.trim().toLowerCase())) {
+            res.status(403).json({
+                success: false,
+                message: 'You are not authorized to register. Please contact the administrator.'
+            });
+            return;
+        }
         // Check if user exists
         const userExists = await User_1.default.findOne({ email });
         if (userExists) {
             res.status(400).json({ success: false, message: 'User already exists' });
             return;
         }
-        // Determine role based on ADMIN_EMAILS
-        let role = 'user';
-        const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
-        const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
-        if (adminEmails.includes(email.trim().toLowerCase())) {
-            role = 'admin';
-        }
-        // Create user
+        // Create user with admin role (only authorized emails can register)
         const user = await User_1.default.create({
             username,
             email,
             password,
-            role,
+            role: 'admin',
         });
         (0, generateToken_1.sendTokenResponse)(user, 201, res);
     }
@@ -45,6 +48,16 @@ const login = async (req, res, next) => {
         const { email, password } = req.body;
         if (!email || !password) {
             res.status(400).json({ success: false, message: 'Please provide an email and password' });
+            return;
+        }
+        // Check if email is authorized
+        const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
+        const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
+        if (!adminEmails.includes(email.trim().toLowerCase())) {
+            res.status(403).json({
+                success: false,
+                message: 'You are not authorized to access this application. Please contact the administrator.'
+            });
             return;
         }
         // Check for user
@@ -115,6 +128,16 @@ const googleLogin = async (req, res, next) => {
             res.status(400).json({ success: false, message: 'Email from OAuth provider is required' });
             return;
         }
+        // Check if email is authorized - this should be the FIRST check
+        const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
+        const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
+        if (!adminEmails.includes(email.trim().toLowerCase())) {
+            res.status(403).json({
+                success: false,
+                message: 'You are not authorized to access this application. Please contact the administrator.'
+            });
+            return;
+        }
         // Check if user exists
         let user = await User_1.default.findOne({ email });
         if (user) {
@@ -127,20 +150,13 @@ const googleLogin = async (req, res, next) => {
             }
         }
         else {
-            // Determine role
-            let role = 'user';
-            const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
-            const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
-            if (adminEmails.includes(email.trim().toLowerCase())) {
-                role = 'admin';
-            }
-            // Create new user
+            // Create new user with admin role (email is already authorized at this point)
             user = await User_1.default.create({
                 username: username || email.split('@')[0],
                 email: email,
                 googleId: googleId,
                 avatar: avatar || '',
-                role: role,
+                role: 'admin',
             });
         }
         (0, generateToken_1.sendTokenResponse)(user, 200, res);

@@ -10,6 +10,18 @@ export const register = async (req: Request, res: Response, next: NextFunction):
   try {
     const { username, email, password } = req.body;
 
+    // Check if email is authorized
+    const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
+    const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
+    
+    if (!adminEmails.includes(email.trim().toLowerCase())) {
+      res.status(403).json({ 
+        success: false, 
+        message: 'You are not authorized to register. Please contact the administrator.' 
+      });
+      return;
+    }
+
     // Check if user exists
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -17,21 +29,12 @@ export const register = async (req: Request, res: Response, next: NextFunction):
       return;
     }
 
-    // Determine role based on ADMIN_EMAILS
-    let role: 'admin' | 'user' = 'user';
-    const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
-    const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
-    
-    if (adminEmails.includes(email.trim().toLowerCase())) {
-      role = 'admin';
-    }
-
-    // Create user
+    // Create user with admin role (only authorized emails can register)
     const user = await User.create({
       username,
       email,
       password,
-      role,
+      role: 'admin',
     });
 
     sendTokenResponse(user, 201, res);
@@ -47,6 +50,18 @@ export const login = async (req: Request, res: Response, next: NextFunction): Pr
 
     if (!email || !password) {
       res.status(400).json({ success: false, message: 'Please provide an email and password' });
+      return;
+    }
+
+    // Check if email is authorized
+    const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
+    const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
+    
+    if (!adminEmails.includes(email.trim().toLowerCase())) {
+      res.status(403).json({ 
+        success: false, 
+        message: 'You are not authorized to access this application. Please contact the administrator.' 
+      });
       return;
     }
 
@@ -122,6 +137,18 @@ export const googleLogin = async (req: Request, res: Response, next: NextFunctio
       return;
     }
 
+    // Check if email is authorized - this should be the FIRST check
+    const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
+    const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
+    
+    if (!adminEmails.includes(email.trim().toLowerCase())) {
+      res.status(403).json({ 
+        success: false, 
+        message: 'You are not authorized to access this application. Please contact the administrator.' 
+      });
+      return;
+    }
+
     // Check if user exists
     let user = await User.findOne({ email });
 
@@ -133,22 +160,13 @@ export const googleLogin = async (req: Request, res: Response, next: NextFunctio
         await user.save();
       }
     } else {
-      // Determine role
-      let role: 'admin' | 'user' = 'user';
-      const adminEmailsEnv = process.env.ADMIN_EMAILS || '';
-      const adminEmails = adminEmailsEnv.split(',').map(e => e.trim().toLowerCase());
-      
-      if (adminEmails.includes(email.trim().toLowerCase())) {
-        role = 'admin';
-      }
-
-      // Create new user
+      // Create new user with admin role (email is already authorized at this point)
       user = await User.create({
         username: username || email.split('@')[0],
         email: email,
         googleId: googleId,
         avatar: avatar || '',
-        role: role,
+        role: 'admin',
       });
     }
 

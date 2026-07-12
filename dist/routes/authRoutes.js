@@ -4,9 +4,11 @@ const express_1 = require("express");
 const authController_1 = require("../controllers/authController");
 const authMiddleware_1 = require("../middleware/authMiddleware");
 const router = (0, express_1.Router)();
+// Registration and login - open but email validation happens in controller
 router.post('/register', authController_1.register);
 router.post('/login', authController_1.login);
 router.get('/logout', authController_1.logout);
+// Protected routes
 router.get('/me', authMiddleware_1.protect, authController_1.getMe);
 router.post('/google', authController_1.googleLogin);
 router.post('/forgotpassword', authController_1.forgotPassword);

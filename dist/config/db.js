@@ -16,7 +16,7 @@ const connectDB = async () => {
     }
     catch (error) {
         console.error(`Database Connection Error: ${error.message}`);
-        process.exit(1);
+        console.warn("Server will continue running, but database-dependent features will fail.");
     }
 };
 exports.connectDB = connectDB;
